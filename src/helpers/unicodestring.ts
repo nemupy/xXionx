@@ -1,33 +1,20 @@
 /* 
-  Derived from https://github.com/bluesky-social/atproto/blob/main/packages/api/src/rich-text/unicode.ts
-  License: Apache-2.0 / MIT
+Unicode string manipulation utilities for Twitter/X
+License: MIT
 */
 
-const encoder = new TextEncoder();
-const decoder = new TextDecoder();
-
 export class UnicodeString {
-  utf16: string;
-  utf8: Uint8Array;
+  private text: string;
 
-  constructor(utf16: string) {
-    this.utf16 = utf16;
-    this.utf8 = encoder.encode(utf16);
+  constructor(text: string) {
+    this.text = text;
   }
 
-  get length() {
-    return this.utf8.byteLength;
+  slice(start: number, end?: number): string {
+    return this.text.slice(start, end);
   }
 
-  slice(start?: number, end?: number): string {
-    return decoder.decode(this.utf8.slice(start, end));
-  }
-
-  utf16IndexToUtf8Index(i: number) {
-    return encoder.encode(this.utf16.slice(0, i)).byteLength;
-  }
-
-  toString() {
-    return this.utf16;
+  toString(): string {
+    return this.text;
   }
 }

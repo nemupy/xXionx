@@ -132,7 +132,7 @@ const htmlifyHashtags = (input: string, status: APIStatus): string => {
   const hashtagPattern = /#([a-zA-Z_]\w*)/g;
   return input.replace(hashtagPattern, (match, hashtag) => {
     const encodedHashtag = encodeURIComponent(hashtag);
-    const url = `${status.provider === DataProvider.Twitter ? Constants.TWITTER_ROOT : Constants.BSKY_ROOT}/hashtag/${encodedHashtag}`;
+    const url = `${Constants.TWITTER_ROOT}/hashtag/${encodedHashtag}`;
     return `  <a href="${url}">${match}</a>  `;
   });
 };

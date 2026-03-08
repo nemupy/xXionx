@@ -94,7 +94,7 @@ export const formatImageUrl = (url: string) => {
  */
 export const wrapForeignLinks = (url: string, apiHost: string): string => {
   let unwrap = false;
-  const whitelistedDomains = ['twitter.com', 'x.com', 't.me', 'telegram.me', 'bsky.app'];
+  const whitelistedDomains = ['twitter.com', 'x.com', 't.me', 'telegram.me'];
   try {
     const urlObj = new URL(url);
 

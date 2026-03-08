@@ -81,8 +81,7 @@ export const renderVideo = (
   // console.log('status', status);
   console.log('provider', status.provider);
 
-  // Apply video redirect workaround for Discord/Telegram, but NOT for TikTok
-  // TikTok videos need their own proxy with specific cookies/headers
+  // Apply video redirect workaround for Discord/Telegram
   if (
     experimentCheck(Experiment.KITCHENSINK_MEDIA, userAgent?.includes('TelegramBot'))
   ) {

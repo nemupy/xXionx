@@ -158,7 +158,7 @@ declare interface APIVideo extends APIMedia {
   type: 'video' | 'gif';
   thumbnail_url: string;
   duration: number;
-  filesize?: number; // File size in bytes (when available, e.g., from TikTok)
+  filesize?: number; // File size in bytes
   variants?: TweetMediaVariant[]; // Legacy API only - use formats internally
   formats: APIVideoFormat[];
 }
@@ -168,7 +168,7 @@ type APIVideoFormat = {
   codec?: 'h264' | 'hevc' | 'vp9' | 'av1';
   bitrate?: number;
   url: string;
-  size?: number; // File size in bytes (when available, e.g., from TikTok)
+  size?: number; // File size in bytes
   height?: number;
   width?: number;
 };
