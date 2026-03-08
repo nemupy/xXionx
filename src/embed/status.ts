@@ -13,7 +13,6 @@ import { renderInstantView } from '../render/instantview';
 import { constructTwitterThread } from '../providers/twitter/conversation';
 import { Experiment, experimentCheck } from '../experiments';
 import translationResources from '../../i18n/resources';
-import { constructBlueskyThread } from '../providers/bsky/conversation';
 import { DataProvider } from '../enum';
 import { encodeSnowcode } from '../helpers/snowcode';
 import { getBranding } from '../helpers/branding';
@@ -29,8 +28,7 @@ import {
 } from '../types/types';
 import { shouldTranscodeGif } from '../helpers/giftranscode';
 import { normalizeLanguage } from '../helpers/language';
-import { getVideoTranscodeDomain, getVideoTranscodeDomainBluesky } from '../helpers/transcode';
-import { constructTikTokVideo } from '../providers/tiktok/conversation';
+import { getVideoTranscodeDomain } from '../helpers/transcode';
 import { TwitterApiImage } from '../types/vendor/twitter';
 
 /**
@@ -138,19 +136,6 @@ export const handleStatus = async (
       useActivity ? undefined : useLanguage,
       flags?.api ?? false
     );
-  } else if (provider === DataProvider.Bsky) {
-    thread = await constructBlueskyThread(
-      statusId,
-      authorHandle ?? '',
-      fetchWithThreads,
-      c,
-      useActivity ? undefined : useLanguage
-    );
-  } else if (provider === DataProvider.TikTok) {
-    // Get proxy base URL from the current request for TikTok video proxy
-    const requestUrl = new URL(c.req.url);
-    const proxyBase = `${requestUrl.protocol}//${requestUrl.host}`;
-    thread = await constructTikTokVideo(statusId, proxyBase, userAgent);
   } else {
     return returnError(c, Strings.ERROR_API_FAIL);
   }
@@ -202,11 +187,7 @@ export const handleStatus = async (
     case 401:
       return returnError(c, Strings.ERROR_PRIVATE);
     case 404:
-      if (provider === DataProvider.Bsky) {
-        return returnError(c, Strings.ERROR_BLUESKY_POST_NOT_FOUND);
-      } else {
-        return returnError(c, Strings.ERROR_TWEET_NOT_FOUND);
-      }
+      return returnError(c, Strings.ERROR_TWEET_NOT_FOUND);
     case 500:
       console.log(api);
       return returnError(c, Strings.ERROR_API_FAIL);
@@ -289,17 +270,12 @@ export const handleStatus = async (
       }
       if (selectedMedia?.type === 'video') {
         if (
-          experimentCheck(Experiment.KITCHENSINK_MEDIA, isTelegram) &&
-          status.provider !== DataProvider.TikTok
+          experimentCheck(Experiment.KITCHENSINK_MEDIA, isTelegram)
         ) {
-          const domain =
-            status.provider === DataProvider.Twitter
-              ? getVideoTranscodeDomain(status.id)
-              : getVideoTranscodeDomainBluesky(status.author.did);
+          const domain = getVideoTranscodeDomain(status.id);
           redirectUrl = `https://${domain}${new URL(redirectUrl).pathname}`;
         } else if (
-          experimentCheck(Experiment.VIDEO_REDIRECT_WORKAROUND, !!Constants.API_HOST_LIST) &&
-          status.provider !== DataProvider.TikTok
+          experimentCheck(Experiment.VIDEO_REDIRECT_WORKAROUND, !!Constants.API_HOST_LIST)
         ) {
           redirectUrl = `https://${Constants.API_HOST_LIST[0]}/2/go?url=${encodeURIComponent(redirectUrl)}`;
         }
@@ -344,11 +320,6 @@ export const handleStatus = async (
       `<meta property="twitter:site" content="@${status.author.screen_name}"/>`,
       `<meta property="twitter:creator" content="@${status.author.screen_name}"/>`
     );
-  } else if (status.provider === DataProvider.Bsky) {
-    headers.push(
-      `<link rel="canonical" href="${Constants.BSKY_ROOT}/profile/${status.author.screen_name}/post/${status.id}"/>`,
-      `<meta property="og:url" content="${Constants.BSKY_ROOT}/profile/${status.author.screen_name}/post/${status.id}"/>`
-    );
   }
 
   if (!flags.gallery) {
@@ -366,10 +337,6 @@ export const handleStatus = async (
     if (provider === DataProvider.Twitter) {
       headers.push(
         `<meta http-equiv="refresh" content="0;url=${Constants.TWITTER_ROOT}/${status.author.screen_name}/status/${status.id}"/>`
-      );
-    } else if (provider === DataProvider.Bsky) {
-      headers.push(
-        `<meta http-equiv="refresh" content="0;url=${Constants.BSKY_ROOT}/profile/${status.author.screen_name}/post/${status.id}"/>`
       );
     }
   }
@@ -744,15 +711,12 @@ export const handleStatus = async (
   }
 
   if (useActivity) {
-    const data: { i: string; l?: string; h?: string; t?: number; m?: number; n?: number } = {
+    const data: { i: string; l?: string; t?: number; m?: number; n?: number } = {
       i: statusId
     };
     /* Convert necessary flags into snowcode data */
     if (language !== status.lang) {
       data.l = language;
-    }
-    if (status.provider === DataProvider.Bsky) {
-      data.h = status.author.id;
     }
     if (flags.textOnly) {
       data.t = 1;
@@ -766,17 +730,7 @@ export const handleStatus = async (
     const snowflake = encodeSnowcode(data);
     console.log('snowflake', snowflake);
     let base: string;
-    switch (status.provider) {
-      case DataProvider.Bsky:
-        base = Constants.STANDARD_BSKY_DOMAIN_LIST[0];
-        break;
-      case DataProvider.TikTok:
-        base = Constants.STANDARD_TIKTOK_DOMAIN_LIST[0];
-        break;
-      default:
-        base = Constants.STANDARD_DOMAIN_LIST[0];
-        break;
-    }
+    base = Constants.STANDARD_DOMAIN_LIST[0];
 
     try {
       base = new URL(c.req.url).hostname;

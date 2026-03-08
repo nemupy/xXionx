@@ -4,7 +4,6 @@ import { Experiment, experimentCheck } from '../experiments';
 import { handleQuote } from '../helpers/quote';
 import { DataProvider } from '../enum';
 import {
-  APIBlueskyStatus,
   APIMedia,
   APITwitterStatus,
   APIVideo,
@@ -13,7 +12,7 @@ import {
 } from '../types/types';
 import { getBranding } from '../helpers/branding';
 import { getGIFTranscodeDomain, shouldTranscodeGif } from '../helpers/giftranscode';
-import { getVideoTranscodeDomain, getVideoTranscodeDomainBluesky } from '../helpers/transcode';
+import { getVideoTranscodeDomain } from '../helpers/transcode';
 
 export const renderVideo = (
   properties: RenderProperties,
@@ -69,7 +68,6 @@ export const renderVideo = (
   let url = video.url;
 
   if (
-    status.provider !== DataProvider.Bsky &&
     shouldTranscodeGif(properties.context) &&
     video.type === 'gif'
   ) {
@@ -86,18 +84,13 @@ export const renderVideo = (
   // Apply video redirect workaround for Discord/Telegram, but NOT for TikTok
   // TikTok videos need their own proxy with specific cookies/headers
   if (
-    experimentCheck(Experiment.KITCHENSINK_MEDIA, userAgent?.includes('TelegramBot')) &&
-    status.provider !== DataProvider.TikTok
+    experimentCheck(Experiment.KITCHENSINK_MEDIA, userAgent?.includes('TelegramBot'))
   ) {
-    const domain =
-      status.provider === DataProvider.Twitter
-        ? getVideoTranscodeDomain(status.id)
-        : getVideoTranscodeDomainBluesky(status.id);
+    const domain = getVideoTranscodeDomain(status.id);
     url = `https://${domain}${new URL(url).pathname}`;
   } else if (
     experimentCheck(Experiment.VIDEO_REDIRECT_WORKAROUND, !!Constants.API_HOST_LIST) &&
-    (userAgent?.includes('Discordbot') || userAgent?.includes('TelegramBot')) &&
-    status.provider !== DataProvider.TikTok
+    (userAgent?.includes('Discordbot') || userAgent?.includes('TelegramBot'))
   ) {
     url = `https://${Constants.API_HOST_LIST[0]}/2/go?url=${encodeURIComponent(url)}`;
   }

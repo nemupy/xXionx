@@ -223,7 +223,7 @@ declare interface APIStatus {
   source: string | null;
 
   embed_card: 'tweet' | 'summary' | 'summary_large_image' | 'player';
-  provider: DataProvider;
+  provider: DataProvider.Twitter;
 }
 
 declare interface APIFacet {
@@ -259,14 +259,6 @@ declare interface APITwitterStatus extends APIStatus {
   provider: DataProvider.Twitter;
 }
 
-declare interface APIBlueskyStatus extends APIStatus {
-  provider: DataProvider.Bsky;
-}
-
-declare interface APITikTokStatus extends APIStatus {
-  provider: DataProvider.TikTok;
-  views?: number | null;
-}
 
 declare interface APIUser {
   id: string;
@@ -314,13 +306,13 @@ declare interface APIUser {
 }
 
 declare interface SocialPost {
-  status: APIStatus | APITwitterStatus | null;
+  status: APITwitterStatus | null;
   author: APIUser | null;
 }
 
 declare interface SocialThread {
-  status: APIStatus | APITwitterStatus | null;
-  thread: (APIStatus | APITwitterStatus)[] | null;
+  status: APITwitterStatus | null;
+  thread: APITwitterStatus[] | null;
   author: APIUser | null;
   code: number;
 }

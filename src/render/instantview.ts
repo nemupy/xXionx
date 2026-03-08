@@ -15,7 +15,7 @@ import {
   RenderProperties,
   ResponseInstructions
 } from '../types/types';
-import { getVideoTranscodeDomain, getVideoTranscodeDomainBluesky } from '../helpers/transcode';
+import { getVideoTranscodeDomain } from '../helpers/transcode';
 import { experimentCheck, Experiment } from '../experiments';
 
 /**
@@ -55,18 +55,11 @@ enum AuthorActionType {
 
 const populateUserLinks = (text: string, status: APIStatus): string => {
   /* TODO: Maybe we can add username splices to our API so only genuinely valid users are linked? */
-  let usernamePattern = /@(\w{1,15})/g;
-
-  if (status.provider === DataProvider.Bsky) {
-    usernamePattern = /@(?!-)([\w.-]+(?<!-))/g;
-  }
+  const usernamePattern = /@(\w{1,15})/g;
 
   text.match(usernamePattern)?.forEach(match => {
     const username = match.replace('@', '');
-    let url = `${Constants.TWITTER_ROOT}/${username}`;
-    if (status.provider === DataProvider.Bsky) {
-      url = `${Constants.BSKY_ROOT}/profile/${username}`;
-    }
+    const url = `${Constants.TWITTER_ROOT}/${username}`;
     text = text.replace(
       match,
       `<a href="${url}" target="_blank" rel="noopener noreferrer">${match}</a>`
@@ -82,10 +75,7 @@ const generateStatusMedia = (status: APIStatus): string => {
       let url = mediaItem.url;
 
       if (experimentCheck(Experiment.KITCHENSINK_MEDIA, !!Constants.VIDEO_TRANSCODE_DOMAIN_LIST)) {
-        const domain =
-          status.provider === DataProvider.Twitter
-            ? getVideoTranscodeDomain(status.id)
-            : getVideoTranscodeDomainBluesky(status.id);
+        const domain = getVideoTranscodeDomain(status.id);
         url = `https://${domain}${new URL(url).pathname}`;
       }
       switch (mediaItem.type) {
@@ -164,10 +154,7 @@ function getTranslatedText(status: APITwitterStatus, isQuote = false): string | 
   let text = paragraphify(sanitizeText(status.translation?.text), isQuote);
   text = htmlifyLinks(text);
   text = htmlifyHashtags(text, status);
-
-  if (status.provider === DataProvider.Twitter) {
-    text = populateUserLinks(text, status);
-  }
+  text = populateUserLinks(text, status);
 
   const formatText = `📑 {translation}`.format({
     translation: i18next.t('translatedFrom').format({
@@ -231,10 +218,8 @@ const generateStatusFooter = (
 ): string => {
   let description = author.description;
   description = htmlifyLinks(description);
-  if (status.provider === DataProvider.Twitter) {
-    description = htmlifyHashtags(description, status);
-    description = populateUserLinks(description, status);
-  }
+  description = htmlifyHashtags(description, status);
+  description = populateUserLinks(description, status);
 
   return `
     <p>{socialText}</p>
@@ -245,11 +230,11 @@ const generateStatusFooter = (
     `.format({
     socialText: getSocialTextIV(status as APITwitterStatus) || '',
     viewOriginal:
-      !isQuote && status.provider !== DataProvider.Bsky
+      !isQuote
         ? `<a href="${status.url}">${i18next.t('ivViewOriginal')}</a>`
         : notApplicableComment,
     aboutSection:
-      isQuote || status.provider === DataProvider.Bsky
+      isQuote
         ? ''
         : `<h2>${i18next.t('ivAboutAuthor')}</h2>
         {pfp}

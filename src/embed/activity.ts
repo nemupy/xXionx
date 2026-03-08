@@ -2,7 +2,6 @@
 import { Strings } from '../strings';
 import { DataProvider, returnError } from './status';
 import { constructTwitterThread } from '../providers/twitter/conversation';
-import { constructBlueskyThread } from '../providers/bsky/conversation';
 import { Constants } from '../constants';
 import { getActivitySocialProof } from '../helpers/socialproof';
 import i18next from 'i18next';
@@ -24,7 +23,6 @@ import {
 import { Context } from 'hono';
 import { shouldTranscodeGif } from '../helpers/giftranscode';
 import { normalizeLanguage } from '../helpers/language';
-import { constructTikTokVideo } from '../providers/tiktok/conversation';
 import { renderArticleToHtml, DISCORD_ARTICLE_MAX_LENGTH } from '../helpers/article';
 import { TwitterApiMedia, TwitterApiImage, TwitterApiVideo } from '../types/vendor/twitter';
 
@@ -197,18 +195,7 @@ const getStatusText = (status: APIStatus): StatusTextResult => {
 };
 
 const linkifyMentions = (text: string, status: APIStatus) => {
-  let baseUrl = '';
-  switch (status.provider) {
-    case DataProvider.Bsky:
-      baseUrl = `${Constants.BSKY_ROOT}/profile/`;
-      break;
-    case DataProvider.Twitter:
-      baseUrl = `${Constants.TWITTER_ROOT}/`;
-      break;
-    case DataProvider.TikTok:
-      baseUrl = `${Constants.TIKTOK_ROOT}/@`;
-      break;
-  }
+  const baseUrl = `${Constants.TWITTER_ROOT}/`;
   const matches = text.match(/(?<!https?:\/\/[\w.\-_%$@&?!:;/'()*]+)@([\w.]+)(?=\W|$)/g);
 
   console.log('matches', matches);
@@ -224,18 +211,7 @@ const linkifyMentions = (text: string, status: APIStatus) => {
 };
 
 const linkifyHashtags = (text: string, status: APIStatus) => {
-  let baseUrl = '';
-  switch (status.provider) {
-    case DataProvider.Bsky:
-      baseUrl = `${Constants.BSKY_ROOT}/hashtag`;
-      break;
-    case DataProvider.Twitter:
-      baseUrl = `${Constants.TWITTER_ROOT}/hashtag`;
-      break;
-    case DataProvider.TikTok:
-      baseUrl = `${Constants.TIKTOK_ROOT}/tag`;
-      break;
-  }
+  const baseUrl = `${Constants.TWITTER_ROOT}/hashtag`;
   const matches = text.match(/(?<!https?:\/\/[\w.\-_%$@&?!:;/'()*]+)#([\w.]+)(?=\W|$)/g);
   console.log('matches', matches);
   // deduplicate hashtags
@@ -268,27 +244,9 @@ const formatStatus = (text: string, status: APIStatus) => {
   if (status.raw_text && enableFacets) {
     text = status.raw_text.text;
 
-    let baseHashtagUrl = '';
-    let baseSymbolUrl = '';
-    let baseMentionUrl = '';
-
-    switch (status.provider) {
-      case DataProvider.Bsky:
-        baseHashtagUrl = `${Constants.BSKY_ROOT}/hashtag`;
-        baseSymbolUrl = `${Constants.TWITTER_ROOT}/search?q=%24`;
-        baseMentionUrl = `${Constants.BSKY_ROOT}/profile/`;
-        break;
-      case DataProvider.Twitter:
-        baseHashtagUrl = `${Constants.TWITTER_ROOT}/hashtag`;
-        baseSymbolUrl = `${Constants.TWITTER_ROOT}/search?q=%24`;
-        baseMentionUrl = `${Constants.TWITTER_ROOT}/`;
-        break;
-      case DataProvider.TikTok:
-        baseHashtagUrl = `${Constants.TIKTOK_ROOT}/tag`;
-        baseSymbolUrl = `${Constants.TIKTOK_ROOT}/search?q=%24`;
-        baseMentionUrl = `${Constants.TIKTOK_ROOT}/@`;
-        break;
-    }
+    const baseHashtagUrl = `${Constants.TWITTER_ROOT}/hashtag`;
+    const baseSymbolUrl = `${Constants.TWITTER_ROOT}/search?q=%24`;
+    const baseMentionUrl = `${Constants.TWITTER_ROOT}/`;
     let offset = 0;
     status.raw_text.facets.forEach(facet => {
       let newFacet = '';
@@ -401,19 +359,6 @@ export const handleActivity = async (
   let thread: SocialThread;
   if (provider === DataProvider.Twitter) {
     thread = await constructTwitterThread(statusId, false, c, language ?? undefined, false);
-  } else if (provider === DataProvider.Bsky) {
-    thread = await constructBlueskyThread(
-      statusId,
-      authorHandle ?? '',
-      false,
-      c,
-      language ?? undefined
-    );
-  } else if (provider === DataProvider.TikTok) {
-    // Get proxy base URL from the current request for TikTok video proxy
-    const requestUrl = new URL(c.req.url);
-    const proxyBase = `${requestUrl.protocol}//${requestUrl.host}`;
-    thread = await constructTikTokVideo(statusId, proxyBase);
   } else {
     return returnError(c, Strings.ERROR_API_FAIL);
   }

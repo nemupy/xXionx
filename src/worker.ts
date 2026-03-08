@@ -9,21 +9,18 @@ import { api } from './realms/api/router';
 import { twitter } from './realms/twitter/router';
 import { cacheMiddleware } from './caches';
 import { ContentfulStatusCode } from 'hono/utils/http-status';
-import { bsky } from './realms/bluesky/router';
 import { getBranding } from './helpers/branding';
-import { tiktok } from './realms/tiktok/router';
 
 const noCache = 'max-age=0, no-cache, no-store, must-revalidate';
 const embeddingClientRegex =
   /(discordbot|telegrambot|facebook|whatsapp|firefox\/92|vkshare|revoltchat|preview|iframely)/gi;
 
-/* This is the root app which contains route trees for multiple "realms".
+/* This is the root app which contains route trees for Twitter/X and API realms.
 
    We use the term "realms" rather than domains because of the way FxEmbed is structured.
    fxtwitter.com and fixupx.com both contain the exact same content, but api.fxtwitter.com does not*, despite technically
    being the same domain as fxtwitter.com. Similarly, d.fxtwitter.com and other subdomain flags, etc. 
-   And of course, fxbsky.app runs on the separate FxBluesky realm.
-   This allows us to connect a single FxEmbed worker to tons of domains and still route them to the correct content.
+   This allows us to connect a single FxEmbed worker to multiple Twitter/X domains and still route them to the correct content.
    
 
    * Under the old system with itty-router, this was not the case, but it is since adopting Hono. This will be necessary for FxTwitter API v2. */
@@ -47,12 +44,6 @@ export const app = new Hono<{
     } else if (Constants.STANDARD_DOMAIN_LIST.includes(baseHostName)) {
       realm = 'twitter';
       console.log('Twitter realm');
-    } else if (Constants.STANDARD_BSKY_DOMAIN_LIST.includes(baseHostName)) {
-      realm = 'bsky';
-      console.log('Bluesky realm');
-    } else if (Constants.STANDARD_TIKTOK_DOMAIN_LIST.includes(baseHostName)) {
-      realm = 'tiktok';
-      console.log('TikTok realm');
     } else if (
       baseHostName.includes('workers.dev') ||
       baseHostName.includes('localhost') ||
@@ -161,8 +152,6 @@ app.use('*', timing({ enabled: false }));
 
 app.route(`/api`, api);
 app.route(`/twitter`, twitter);
-app.route(`/bsky`, bsky);
-app.route(`/tiktok`, tiktok);
 
 app.all('/error', async c => {
   c.header('cache-control', noCache);
