@@ -10,7 +10,7 @@ import { getSocialProof } from '../helpers/socialproof';
 import { renderPhoto } from '../render/photo';
 import { renderVideo } from '../render/video';
 import { renderInstantView } from '../render/instantview';
-import { constructTwitterThread } from '../providers/twitter/conversation';
+import { constructTwitterThread } from '../core/conversation';
 import { Experiment, experimentCheck } from '../experiments';
 import translationResources from '../../i18n/resources';
 import { DataProvider } from '../enum';

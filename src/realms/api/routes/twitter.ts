@@ -1,7 +1,7 @@
-import { constructTwitterThread } from '../../../providers/twitter/conversation';
+import { constructTwitterThread } from '../../../core/conversation';
 import { Constants } from '../../../constants';
-import { userAPI } from '../../../providers/twitter/profile';
-import { attachAboutAccountData } from '../../../providers/twitter/aboutAccount';
+import { userAPI } from '../../../core/profile';
+import { attachAboutAccountData } from '../../../core/aboutAccount';
 import { ContentfulStatusCode } from 'hono/utils/http-status';
 import { Context } from 'hono';
 import { isParamTruthy } from '../../../helpers/utils';

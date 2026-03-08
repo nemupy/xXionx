@@ -2,7 +2,7 @@ import { Context } from 'hono';
 import { APITwitterStatus, GrokTranslation } from '../types/types';
 import { normalizeLanguage } from './language';
 import { Constants } from '../constants';
-import { twitterFetch } from '../providers/twitter/fetch';
+import { twitterFetch } from '../core/fetch';
 
 /* Handles translating statuses when asked! */
 export const translateStatusGrok = async (

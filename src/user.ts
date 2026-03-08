@@ -1,7 +1,7 @@
 import { Context } from 'hono';
 import { Constants } from './constants';
 import { Strings } from './strings';
-import { userAPI } from './providers/twitter/profile';
+import { userAPI } from './core/profile';
 import { ContentfulStatusCode } from 'hono/utils/http-status';
 import { getBranding } from './helpers/branding';
 import { APIUser, InputFlags } from './types/types';

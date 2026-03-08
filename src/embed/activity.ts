@@ -1,7 +1,7 @@
 /* eslint-disable no-case-declarations */
 import { Strings } from '../strings';
 import { DataProvider, returnError } from './status';
-import { constructTwitterThread } from '../providers/twitter/conversation';
+import { constructTwitterThread } from '../core/conversation';
 import { Constants } from '../constants';
 import { getActivitySocialProof } from '../helpers/socialproof';
 import i18next from 'i18next';
