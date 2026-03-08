@@ -1,25 +1,25 @@
 import { renderCard } from './card';
-import { Constants } from '../../constants';
-import { linkFixer } from '../../helpers/linkFixer';
-import { handleMosaic } from '../../helpers/mosaic';
-import { unescapeText } from '../../helpers/utils';
-import { processMedia, convertFormatToVariant } from '../../helpers/media';
+import { Constants } from '../constants';
+import { linkFixer } from '../helpers/linkFixer';
+import { handleMosaic } from '../helpers/mosaic';
+import { unescapeText } from '../helpers/utils';
+import { processMedia, convertFormatToVariant } from '../helpers/media';
 import { convertToApiUser } from './profile';
 import { Context } from 'hono';
-import { DataProvider } from '../../enum';
-import { APIUser, APITwitterStatus, FetchResults, APIVideo, APIPhoto } from '../../types/types';
-import { shouldTranscodeGif } from '../../helpers/giftranscode';
-import { translateStatusAI } from '../../helpers/translateAI';
-import { translateStatus } from '../../helpers/translate';
+import { DataProvider } from '../enum';
+import { APIUser, APITwitterStatus, FetchResults, APIVideo, APIPhoto } from '../types/types';
+import { shouldTranscodeGif } from '../helpers/giftranscode';
+import { translateStatusAI } from '../helpers/translateAI';
+import { translateStatus } from '../helpers/translate';
 import i18next from 'i18next';
-import { translateStatusGrok } from '../../helpers/translateGrok';
-import { experimentCheck, Experiment } from '../../experiments';
+import { translateStatusGrok } from '../helpers/translateGrok';
+import { experimentCheck, Experiment } from '../experiments';
 import {
   GraphQLTwitterStatus,
   GraphQLUser,
   TwitterApiMedia,
   TwitterArticleContentState
-} from '../../types/vendor/twitter';
+} from '../types/vendor/twitter';
 
 export const buildAPITwitterStatus = async (
   c: Context,

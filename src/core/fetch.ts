@@ -1,9 +1,9 @@
 import { Context } from 'hono';
-import { Constants } from '../../constants';
-import { Experiment, experimentCheck } from '../../experiments';
-import { generateUserAgent } from '../../helpers/useragent';
-import { generateSnowflake, withTimeout } from '../../helpers/utils';
-import { detokenize } from '../../helpers/detokenize';
+import { Constants } from '../constants';
+import { Experiment, experimentCheck } from '../experiments';
+import { generateUserAgent } from '../helpers/useragent';
+import { generateSnowflake, withTimeout } from '../helpers/utils';
+import { detokenize } from '../helpers/detokenize';
 
 const API_ATTEMPTS = 3;
 let wasElongatorDisabled = false;

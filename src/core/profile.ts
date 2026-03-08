@@ -1,7 +1,7 @@
 import { Context } from 'hono';
-import { Constants } from '../../constants';
-import { linkFixer } from '../../helpers/linkFixer';
-import { APIUser, UserAPIResponse } from '../../types/types';
+import { Constants } from '../constants';
+import { linkFixer } from '../helpers/linkFixer';
+import { APIUser, UserAPIResponse } from '../types/types';
 import {
   UserByScreenNameQuery,
   UserResultByScreenNameQuery,

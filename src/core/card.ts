@@ -1,8 +1,12 @@
-import { APIPoll, APIExternalMedia, APIBroadcast } from '../../types/types';
-import { calculateTimeLeftString } from '../../helpers/pollTime';
+import { APIPoll, APIExternalMedia, APIBroadcast } from '../types/types';
+import { calculateTimeLeftString } from '../helpers/pollTime';
 import { twitterFetch } from './fetch';
 import { Context } from 'hono';
-import { Constants } from '../../constants';
+import { Constants } from '../constants';
+import {
+  GraphQLTwitterStatus,
+  TweetMedia
+} from '../types/vendor/twitter';
 
 /* Renders card for polls and non-Twitter video embeds (i.e. YouTube) */
 export const renderCard = async (

@@ -1,10 +1,10 @@
-import { Constants } from '../../constants';
+import { Constants } from '../constants';
 import { buildAPITwitterStatus } from './processor';
-import { Experiment, experimentCheck } from '../../experiments';
-import { isGraphQLTwitterStatus } from '../../helpers/graphql';
+import { Experiment, experimentCheck } from '../experiments';
+import { isGraphQLTwitterStatus } from '../helpers/graphql';
 import { Context } from 'hono';
 import { ContentfulStatusCode } from 'hono/utils/http-status';
-import { APITwitterStatus, FetchResults, InputFlags, SocialThread } from '../../types/types';
+import { APITwitterStatus, FetchResults, InputFlags, SocialThread } from '../types/types';
 import {
   TweetDetailQuery,
   TweetResultByIdQuery,
